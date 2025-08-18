@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ClosetItem {
+  id        String   @id @default(cuid())
+  name      String
+  brand     String
+  category  String
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("closet_items")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  brand       String
+  price       Float
+  currency    String   @default("USD")
+  imageUrl    String
+  productUrl  String   @unique
+  category    String?
+  description String?
+  inStock     Boolean  @default(true)
+  source      String   // e.g., "zara", "hm", "uniqlo"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastCrawled DateTime @default(now())
+
+  @@map("products")
+  @@index([brand])
+  @@index([category])
+  @@index([source])
+  @@index([inStock])
+}
+
+model CrawlJob {
+  id          String   @id @default(cuid())
+  source      String   // Brand name (zara, hm, uniqlo)
+  status      String   @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED
+  startedAt   DateTime?
+  completedAt DateTime?
+  error       String?
+  itemsFound  Int      @default(0)
+  itemsSaved  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("crawl_jobs")
+}
